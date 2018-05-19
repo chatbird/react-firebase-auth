@@ -1,2 +1,2 @@
-exports.FirebaseAuthProvider = require("./lib/firebase_auth").FirebaseAuthProvider;
-exports.FirebaseAuthConsumer = require("./lib/firebase_auth").FirebaseAuthConsumer;
+exports.FirebaseAuthProvider = require("./lib/index").FirebaseAuthProvider;
+exports.FirebaseAuthConsumer = require("./lib/index").FirebaseAuthConsumer;

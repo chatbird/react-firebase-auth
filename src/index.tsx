@@ -10,11 +10,7 @@ import handleVerifyEmail from "./helpers/handle_verify_email";
 import handleRecoverEmail from "./helpers/handle_recover_email";
 import updateProfile from "./helpers/update_profile";
 import updateEmail from "./helpers/update_email";
-import localforage from "localforage";
-
-const store = localforage.createInstance({
-  name: "react-firebase-auth"
-});
+const localforage = require("localforage");
 
 const FirebaseContext = React.createContext(null);
 
@@ -37,6 +33,7 @@ export type FirebaseAuthProviderState = {
 }
 
 export interface FirebaseApi {
+  auth: (any) => any,
   loading?: boolean,
   providers?: any[],
   firebaseToken?: string,
@@ -75,11 +72,10 @@ export const FirebaseAuthConsumer = FirebaseContext.Consumer;
 
 export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, FirebaseAuthProviderState> {
 
-  constructor(props: FirebaseAuthProviderProps){
-    super(props);
-    let {firebaseConfig} = props;
-    setFirebaseConfig(firebaseConfig);
-  }
+  // constructor(props: FirebaseAuthProviderProps){
+  //   super(props);
+  //   let {firebaseConfig} = props;
+  // }
 
   state : FirebaseAuthProviderState = {
     firebaseToken: null,
@@ -99,17 +95,19 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
   signInWithLinkedIn = () => window.location.replace(this.props.linkedInLoginPath);
 
   componentDidMount(){
-    const {customToken} = this.props;
+    const {customToken, firebaseConfig} = this.props;
+    firebase.initializeApp(firebaseConfig);
+
     if(customToken){
       firebase.auth().signOut()
-        .then(this.setAuthStateListener)
-        .then(() => this.signInWithCustomToken(customToken))
-        .then(this.handleRedirect)
+        .then(() => this.signInWithCustomToken(this.props.customToken))
+        .then(this.setAuthStateListener.bind(this))
+        .then(this.handleRedirect.bind(this))
     }else{
-      store.getItem('pendingCredential')
-        .then(this.handleRedirect)
-        .catch(this.handleRedirect)
-        .then(this.setAuthStateListener)
+      localforage.getItem('pendingCredential')
+        .then(this.handleRedirect.bind(this))
+        .catch(this.handleRedirect.bind(this))
+        .then(this.setAuthStateListener.bind(this))
     }
   }
 
@@ -118,20 +116,20 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
     return firebase.auth().signInWithCustomToken(token)
       .then((user) => {
         this.log("signInWithCustomToken user", user);
-        return store.getItem('pendingCredential')
+        return localforage.getItem('pendingCredential')
           .then((pendingCredential) => {
             this.log("signInWithCustomToken pendingCredential", pendingCredential);
             if(pendingCredential){
               return user.linkAndRetrieveDataWithCredential(pendingCredential)
-                .then(() => store.removeItem('pendingCredential'))
+                .then(() => localforage.removeItem('pendingCredential'))
                 .then(() => user);
             }else{
               return user;
             }
           });
-      }).catch()
-      .then(this.updateTokenForCurrentUser)
-      .then(this.login);
+      }).catch(console.warn)
+      .then(this.updateTokenForCurrentUser.bind(this))
+      .then(this.login.bind(this));
   };
 
   handleRedirect(pendingCredential){
@@ -144,16 +142,16 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
           this.log("Linking with linkedin.com");
           result.user.getIdToken()
             .then((idToken) => this.linkWithLinkedIn(pendingCredential, idToken))
-            .then(this.login)
-            .then(() => store.removeItem('pendingCredential'))
+            .then(this.login.bind(this))
+            .then(() => localforage.removeItem('pendingCredential'))
             .then(() => this.setState({handledRedirect: true}));
         }else{
           this.log("Linking with ", pendingCredential.providerId);
           return result.user
             .linkAndRetrieveDataWithCredential(pendingCredential)
-            .then(() => store.removeItem('pendingCredential'))
-            .then(this.updateTokenForCurrentUser)
-            .then(this.login)
+            .then(() => localforage.removeItem('pendingCredential'))
+            .then(this.updateTokenForCurrentUser.bind(this))
+            .then(this.login.bind(this))
             .then(() => this.setState({handledRedirect: true}));
         }
       }else{
@@ -174,7 +172,7 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
     let existingEmail = error.email;
 
     this.log("handleExistingAccountError", error);
-    return store.setItem('pendingCredential', pendingCredential)
+    return localforage.setItem('pendingCredential', pendingCredential)
       .then(() => {
         this.log("fetching providers for existingEmail", existingEmail);
         return firebase.auth().fetchProvidersForEmail(existingEmail);
@@ -203,14 +201,14 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
 
   linkWithLinkedIn(pendingCredential, idToken){
     return post(this.props.linkedInLinkPath, {pendingCredential, idToken})
-      .then(this.updateTokenForCurrentUser);
+      .then(this.updateTokenForCurrentUser.bind(this));
   }
 
   reauthenticateWithPopup(providerId){
     firebase.auth()
     .currentUser
     .reauthenticateWithPopup(getProvider(providerId))
-    .then(this.updateTokenForCurrentUser);
+    .then(this.updateTokenForCurrentUser.bind(this));
   }
 
   onAuthStateChanged(user){
@@ -221,10 +219,13 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
         return this.updateToken(user);
       }else{
         return user.getIdToken(true)
-          .then(this.login)
+          .then(this.login.bind(this))
           .then(() => this.updateToken(user));
       }
+    } else if(this.props.customToken){
+      return this.signInWithCustomToken(this.props.customToken);
     } else {
+      this.log("calling signInAnonymously()");
       return firebase.auth().signInAnonymously();
     }
   };
@@ -237,51 +238,55 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
   
   private updateEmail = (email) =>
     updateEmail(email)
-      .then(this.updateTokenForCurrentUser);
+      .then(this.updateTokenForCurrentUser.bind(this));
 
   private updateProfile = (input) =>
     updateProfile(input)
-    .then(this.updateTokenForCurrentUser);
+    .then(this.updateTokenForCurrentUser.bind(this));
 
   private handleVerifyEmail = (actionCode) =>
     handleVerifyEmail(actionCode)
-      .then(this.updateTokenForCurrentUser);
+      .then(this.updateTokenForCurrentUser.bind(this));
 
   private handleRecoverEmail = (actionCode) => 
     handleRecoverEmail(actionCode)
-      .then(this.updateTokenForCurrentUser);
+      .then(this.updateTokenForCurrentUser.bind(this));
 
-  private getFirebaseToken = () => this.state.firebaseToken;
+  private getFirebaseToken = () => {
+    // this.log("firebaseToken", this.state.firebaseToken);
+    return this.state.firebaseToken;
+  };
 
   private setAuthStateListener = () => {
-    firebase.auth().onAuthStateChanged(this.onAuthStateChanged);
+    return firebase.auth().onAuthStateChanged(this.onAuthStateChanged.bind(this));
   };
 
   render() {
     const {children} = this.props;
     let {firebaseToken, existingProviders, pendingCredential, existingEmail, handledRedirect} = this.state;
 
-    let mappedExistingProviders : ProviderType[] = null;
+    let mappedExistingProviders : ProviderType[] = this.providers;
     if(existingProviders) mappedExistingProviders = this.providers.filter(({id} : ProviderType) => existingProviders.includes(id));
     let redirectResult = {existingProviders, pendingCredential, existingEmail};
     let loading = !firebaseToken || !handledRedirect;
-
+    
     let value : {firebase: FirebaseApi} = {
       firebase: {
+        auth: firebase.auth,
         loading,
-        providers: this.providers,
+        providers: mappedExistingProviders,
         firebaseToken,
         redirectResult,
         sendVerificationEmailToCurrentUser,
-        getFirebaseToken: this.getFirebaseToken,
-        updateProfile: this.updateProfile,
-        updateEmail: this.updateEmail,       
-        handleVerifyEmail: this.handleVerifyEmail,
-        handleRecoverEmail: this.handleRecoverEmail,
-        updateTokenForCurrentUser: this.updateTokenForCurrentUser,
-        reauthenticateWithPopup: this.reauthenticateWithPopup,
-        signInWithCustomToken: this.signInWithCustomToken,
-        handleExistingAccountError: this.handleExistingAccountError
+        getFirebaseToken: this.getFirebaseToken.bind(this),
+        updateProfile: this.updateProfile.bind(this),
+        updateEmail: this.updateEmail.bind(this),       
+        handleVerifyEmail: this.handleVerifyEmail.bind(this),
+        handleRecoverEmail: this.handleRecoverEmail.bind(this),
+        updateTokenForCurrentUser: this.updateTokenForCurrentUser.bind(this),
+        reauthenticateWithPopup: this.reauthenticateWithPopup.bind(this),
+        signInWithCustomToken: this.signInWithCustomToken.bind(this),
+        handleExistingAccountError: this.handleExistingAccountError.bind(this)
       }
     };
 

@@ -18,6 +18,7 @@ export declare type FirebaseAuthProviderState = {
     pendingCredential: any;
 };
 export interface FirebaseApi {
+    auth: (any) => any;
     loading?: boolean;
     providers?: any[];
     firebaseToken?: string;
@@ -40,17 +41,16 @@ export declare type ProviderType = {
 };
 export declare const FirebaseAuthConsumer: React.ComponentType<React.ConsumerProps<any>>;
 export declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, FirebaseAuthProviderState> {
-    constructor(props: FirebaseAuthProviderProps);
     state: FirebaseAuthProviderState;
     providers: ProviderType[];
     signInWithLinkedIn: () => void;
     componentDidMount(): void;
-    signInWithCustomToken(token: any): Promise<{}>;
+    signInWithCustomToken(token: any): Promise<any>;
     handleRedirect(pendingCredential: any): void;
-    handleExistingAccountError(error: any): Promise<void>;
+    handleExistingAccountError(error: any): any;
     login(idToken: string): Promise<{}>;
     updateToken(user: any, forceRefresh?: boolean): any;
-    linkWithLinkedIn(pendingCredential: any, idToken: any): Promise<any>;
+    linkWithLinkedIn(pendingCredential: any, idToken: any): Promise<Response>;
     reauthenticateWithPopup(providerId: any): void;
     onAuthStateChanged(user: any): any;
     private log;

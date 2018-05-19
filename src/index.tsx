@@ -10,7 +10,7 @@ import handleVerifyEmail from "./helpers/handle_verify_email";
 import handleRecoverEmail from "./helpers/handle_recover_email";
 import updateProfile from "./helpers/update_profile";
 import updateEmail from "./helpers/update_email";
-import localforage from 'localforage';
+import localforage from "localforage";
 
 const store = localforage.createInstance({
   name: "react-firebase-auth"

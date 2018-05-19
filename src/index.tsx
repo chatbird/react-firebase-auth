@@ -61,7 +61,7 @@ const signInWithPopup = (providerId: string) => {
   return () =>  firebase.auth().signInWithPopup(provider);
 };
 
-type ProviderType = {
+export type ProviderType = {
   id: string,
   signInWithRedirect: () => any,
   signInWithPopup: () => any

@@ -68,7 +68,7 @@
     "url": "https://github.com/gurschitz/react-firebase-auth/issues"
   },
   "homepage": "https://github.com/gurschitz/react-firebase-auth#readme",
-  "types": "./lib/types.d.ts",
+  "types": "./lib/index.d.ts",
   "dependencies": {
     "firebase": "^4.6.2",
     "localforage": "^1.7.1",

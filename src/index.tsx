@@ -12,6 +12,10 @@ import updateProfile from "./helpers/update_profile";
 import updateEmail from "./helpers/update_email";
 import localforage from 'localforage';
 
+const store = localforage.createInstance({
+  name: "react-firebase-auth"
+});
+
 const FirebaseContext = React.createContext(null);
 
 export type FirebaseAuthProviderProps = {
@@ -102,7 +106,7 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
         .then(() => this.signInWithCustomToken(customToken))
         .then(this.handleRedirect)
     }else{
-      localforage.getItem('pendingCredential')
+      store.getItem('pendingCredential')
         .then(this.handleRedirect)
         .catch(this.handleRedirect)
         .then(this.setAuthStateListener)
@@ -114,12 +118,12 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
     return firebase.auth().signInWithCustomToken(token)
       .then((user) => {
         this.log("signInWithCustomToken user", user);
-        return localforage.getItem('pendingCredential')
+        return store.getItem('pendingCredential')
           .then((pendingCredential) => {
             this.log("signInWithCustomToken pendingCredential", pendingCredential);
             if(pendingCredential){
               return user.linkAndRetrieveDataWithCredential(pendingCredential)
-                .then(() => localforage.removeItem('pendingCredential'))
+                .then(() => store.removeItem('pendingCredential'))
                 .then(() => user);
             }else{
               return user;
@@ -141,13 +145,13 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
           result.user.getIdToken()
             .then((idToken) => this.linkWithLinkedIn(pendingCredential, idToken))
             .then(this.login)
-            .then(() => localforage.removeItem('pendingCredential'))
+            .then(() => store.removeItem('pendingCredential'))
             .then(() => this.setState({handledRedirect: true}));
         }else{
           this.log("Linking with ", pendingCredential.providerId);
           return result.user
             .linkAndRetrieveDataWithCredential(pendingCredential)
-            .then(() => localforage.removeItem('pendingCredential'))
+            .then(() => store.removeItem('pendingCredential'))
             .then(this.updateTokenForCurrentUser)
             .then(this.login)
             .then(() => this.setState({handledRedirect: true}));
@@ -170,7 +174,7 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
     let existingEmail = error.email;
 
     this.log("handleExistingAccountError", error);
-    return localforage.setItem('pendingCredential', pendingCredential)
+    return store.setItem('pendingCredential', pendingCredential)
       .then(() => {
         this.log("fetching providers for existingEmail", existingEmail);
         return firebase.auth().fetchProvidersForEmail(existingEmail);

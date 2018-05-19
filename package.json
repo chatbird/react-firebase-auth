@@ -71,6 +71,7 @@
   "types": "./lib/types.d.ts",
   "dependencies": {
     "firebase": "^4.6.2",
+    "localforage": "^1.7.1",
     "request": "^2.86.0",
     "whatwg-fetch": "^2.0.4"
   }

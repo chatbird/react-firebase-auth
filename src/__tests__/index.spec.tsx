@@ -10,6 +10,7 @@ import post from "../helpers/post";
 jest.mock("../helpers/post");
 
 import getProvider from '../helpers/get_provider';
+import { truncate } from "fs";
 jest.mock("../helpers/get_provider");
 
 const demoConfig : FirebaseConfigType = {
@@ -135,11 +136,34 @@ describe("<FirebaseAuthProvider />", () => {
     describe("when user is null", () => {
       const user = null;
 
-      it('calls updateToken with user', async () => {
+      it('signs in the user anonymously', async () => {
         await instance.onAuthStateChanged(user);
         expect(firebase.auth().signInAnonymously).toHaveBeenCalled();
       });
     });
   });
 
+  describe("linkWithLinkedIn", () => {
+    const idToken = "some_token";
+    const pendingCredential = {some: "pendingCredential"};
+    const linkedInLinkPath = "linked_in_link_path"
+    const wrapper = shallow(<FirebaseAuthProvider linkedInLinkPath={linkedInLinkPath} firebaseConfig={demoConfig} />);
+    const instance = wrapper.instance() as FirebaseAuthProvider;
+    const currentUser = firebase.auth().currentUser;
+
+    beforeAll(() => {
+      instance.updateToken = jest.fn().mockResolvedValue(true);
+    });
+
+    it('calls post on the linkedinLinkPath with pending credentials and the idToken', () => {
+      instance.linkWithLinkedIn(pendingCredential, idToken);
+      expect(post).toHaveBeenCalledWith(linkedInLinkPath, {pendingCredential, idToken})
+    });
+
+    it('calls updateToken with user', async () => {
+      instance.linkWithLinkedIn(pendingCredential, idToken);
+      expect(instance.updateToken).toHaveBeenCalledWith(currentUser, true);
+    });
+  
+  });
 });

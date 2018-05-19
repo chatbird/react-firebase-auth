@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"declaration": false,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"lib": ["es5", "es6", "dom", "es7"],
+		"module": "commonjs",
+		"sourceMap": true,
+		"jsx": "react",
+		"target": "es5",
+		"outDir": "./lib",
+		"removeComments": true
+	},
+	"include": [
+		"./src/**/*.tsx",
+		"./src/**/*.ts"
+	],
+	"exclude": [
+		"./node_modules/**/*",
+		"./src/**/*.spec.tsx",
+		"./src/**/*.spec.ts",
+		"./src/**/__mocks__/**/*",
+		"./src/**/__tests__/**/*"
+	]
+}

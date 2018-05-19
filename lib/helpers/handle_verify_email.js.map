@@ -1,0 +1,1 @@
+{"version":3,"file":"handle_verify_email.js","sourceRoot":"","sources":["../../src/helpers/handle_verify_email.tsx"],"names":[],"mappings":";;AAAA,mCAAqC;AAErC,IAAM,iBAAiB,GAAG,UAAC,UAAkB;IACzC,QAAQ,CAAC,IAAI,EAAE,CAAC,eAAe,CAAC,UAAU,CAAC,CAAC;AAChD,CAAC,CAAA;AAED,kBAAe,iBAAiB,CAAC"}

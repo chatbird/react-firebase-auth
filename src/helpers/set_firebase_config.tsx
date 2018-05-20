@@ -1,5 +1,5 @@
 import * as firebase from 'firebase';
-import { FirebaseConfigType } from "../types";
+import { FirebaseConfigType } from '..';
 
 const setFirebaseConfig = (firebaseConfig: FirebaseConfigType) => {
     console.log(firebaseConfig);

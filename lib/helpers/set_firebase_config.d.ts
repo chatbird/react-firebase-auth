@@ -1,3 +1,3 @@
-import { FirebaseConfigType } from "../types";
+import { FirebaseConfigType } from '..';
 declare const setFirebaseConfig: (firebaseConfig: FirebaseConfigType) => void;
 export default setFirebaseConfig;

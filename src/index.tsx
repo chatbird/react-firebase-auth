@@ -1,5 +1,4 @@
 import * as React from "react";
-import { FirebaseConfigType } from "./types";
 import { ReactChildren } from "react";
 import setFirebaseConfig from "./helpers/set_firebase_config";
 import * as firebase from 'firebase';
@@ -11,8 +10,16 @@ import handleRecoverEmail from "./helpers/handle_recover_email";
 import updateProfile from "./helpers/update_profile";
 import updateEmail from "./helpers/update_email";
 const localforage = require("localforage");
-
 const FirebaseContext = React.createContext(null);
+
+export type FirebaseConfigType = {
+  apiKey: string,
+  authDomain: string,
+  databaseURL: string,
+  projectId: string,
+  storageBucket: string,
+  messagingSenderId: string
+}
 
 export type FirebaseAuthProviderProps = {
   firebaseConfig: FirebaseConfigType,
@@ -72,10 +79,11 @@ export const FirebaseAuthConsumer = FirebaseContext.Consumer;
 
 export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, FirebaseAuthProviderState> {
 
-  // constructor(props: FirebaseAuthProviderProps){
-  //   super(props);
-  //   let {firebaseConfig} = props;
-  // }
+  constructor(props: FirebaseAuthProviderProps){
+    super(props);
+    let {firebaseConfig} = props;
+    setFirebaseConfig(firebaseConfig);
+  }
 
   state : FirebaseAuthProviderState = {
     firebaseToken: null,
@@ -95,14 +103,18 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
   signInWithLinkedIn = () => window.location.replace(this.props.linkedInLoginPath);
 
   componentDidMount(){
-    const {customToken, firebaseConfig} = this.props;
-    firebase.initializeApp(firebaseConfig);
+    const {customToken} = this.props;
+
+    if(customToken) this.log("customToken", customToken);
 
     if(customToken){
-      firebase.auth().signOut()
-        .then(() => this.signInWithCustomToken(this.props.customToken))
-        .then(this.setAuthStateListener.bind(this))
-        .then(this.handleRedirect.bind(this))
+      this.signInWithCustomToken(this.props.customToken)
+      .then(this.updateTokenForCurrentUser)
+      .then(() => this.setState({handledRedirect: true}));
+      // firebase.auth().signOut()
+      //   .then(this.setAuthStateListener.bind(this))
+      //   .then(() => this.signInWithCustomToken(this.props.customToken))
+      //   .then(this.handleRedirect.bind(this))
     }else{
       localforage.getItem('pendingCredential')
         .then(this.handleRedirect.bind(this))

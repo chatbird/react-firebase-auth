@@ -1,6 +1,13 @@
 /// <reference types="react" />
 import * as React from "react";
-import { FirebaseConfigType } from "./types";
+export declare type FirebaseConfigType = {
+    apiKey: string;
+    authDomain: string;
+    databaseURL: string;
+    projectId: string;
+    storageBucket: string;
+    messagingSenderId: string;
+};
 export declare type FirebaseAuthProviderProps = {
     firebaseConfig: FirebaseConfigType;
     children?: any;
@@ -41,6 +48,7 @@ export declare type ProviderType = {
 };
 export declare const FirebaseAuthConsumer: React.ComponentType<React.ConsumerProps<any>>;
 export declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, FirebaseAuthProviderState> {
+    constructor(props: FirebaseAuthProviderProps);
     state: FirebaseAuthProviderState;
     providers: ProviderType[];
     signInWithLinkedIn: () => void;

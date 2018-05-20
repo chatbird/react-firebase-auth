@@ -1,8 +1,7 @@
 import * as React from "react";
 import { shallow, mount, render } from "enzyme";
 import { spy } from "sinon";
-import { FirebaseAuthProvider, FirebaseAuthProviderProps, FirebaseAuthProviderState } from "../index";
-import { FirebaseConfigType } from "../types";
+import { FirebaseAuthProvider, FirebaseAuthProviderProps, FirebaseAuthProviderState, FirebaseConfigType } from "../index";
 import { Component } from "react";
 import firebase from 'firebase';
 

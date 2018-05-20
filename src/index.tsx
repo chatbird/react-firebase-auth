@@ -111,10 +111,6 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
       this.signInWithCustomToken(this.props.customToken)
       .then(this.updateTokenForCurrentUser)
       .then(() => this.setState({handledRedirect: true}));
-      // firebase.auth().signOut()
-      //   .then(this.setAuthStateListener.bind(this))
-      //   .then(() => this.signInWithCustomToken(this.props.customToken))
-      //   .then(this.handleRedirect.bind(this))
     }else{
       localforage.getItem('pendingCredential')
         .then(this.handleRedirect.bind(this))

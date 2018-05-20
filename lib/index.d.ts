@@ -55,7 +55,7 @@ export declare class FirebaseAuthProvider extends React.Component<FirebaseAuthPr
     componentDidMount(): void;
     signInWithCustomToken(token: any): Promise<any>;
     handleRedirect(pendingCredential: any): void;
-    handleExistingAccountError(error: any): any;
+    handleExistingAccountError(error: any): Promise<void>;
     login(idToken: string): Promise<{}>;
     updateToken(user: any, forceRefresh?: boolean): any;
     linkWithLinkedIn(pendingCredential: any, idToken: any): Promise<Response>;

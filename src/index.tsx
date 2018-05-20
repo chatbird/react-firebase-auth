@@ -9,7 +9,7 @@ import handleVerifyEmail from "./helpers/handle_verify_email";
 import handleRecoverEmail from "./helpers/handle_recover_email";
 import updateProfile from "./helpers/update_profile";
 import updateEmail from "./helpers/update_email";
-const localforage = require("localforage");
+import {default as localforage} from "localforage";
 const FirebaseContext = React.createContext(null);
 
 export type FirebaseConfigType = {

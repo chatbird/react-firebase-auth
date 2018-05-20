@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "build": "rm -r ./lib/* && tsc",
-    "watch":"tsc --watch --skipLibCheck",
+    "watch": "tsc --watch --skipLibCheck",
     "recompile": "tsc",
     "prepublish": "npm run build",
     "test": "./node_modules/.bin/jest"
@@ -72,8 +72,6 @@
   "types": "./lib/index.d.ts",
   "dependencies": {
     "firebase": "^4.6.2",
-    "localforage": "^1.7.1",
-    "request": "^2.86.0",
     "whatwg-fetch": "^2.0.4"
   }
 }

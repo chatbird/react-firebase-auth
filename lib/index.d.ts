@@ -11,7 +11,7 @@ export declare type FirebaseConfigType = {
 export declare type FirebaseAuthProviderProps = {
     firebaseConfig: FirebaseConfigType;
     children?: any;
-    postAfterLoginPath?: string;
+    onLogin?: (idToken: string) => any;
     linkedInLinkPath?: string;
     linkedInLoginPath?: string;
     customToken?: string;
@@ -53,6 +53,9 @@ export declare class FirebaseAuthProvider extends React.Component<FirebaseAuthPr
     providers: ProviderType[];
     signInWithLinkedIn: () => void;
     componentDidMount(): void;
+    getPendingCredential(): Promise<{}>;
+    setPendingCredential(pendingCredential: any): Promise<{}>;
+    removePendingCredential(): void;
     signInWithCustomToken(token: any): Promise<any>;
     handleRedirect(pendingCredential: any): void;
     handleExistingAccountError(error: any): Promise<void>;

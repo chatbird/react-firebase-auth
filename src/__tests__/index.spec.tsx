@@ -28,14 +28,14 @@ describe("<FirebaseAuthProvider />", () => {
   });
 
   describe("login", () => {
-    const loginPath = "some/login/path";
+    const onLogin = jest.fn();
     const idToken = "some_id_token";
-    const wrapper = shallow(<FirebaseAuthProvider postAfterLoginPath={loginPath} firebaseConfig={demoConfig}/>);
+    const wrapper = shallow(<FirebaseAuthProvider onLogin={onLogin} firebaseConfig={demoConfig}/>);
     const instance = wrapper.instance() as FirebaseAuthProvider;
 
-    it("it posts the passed idToken to the configured login route", async () => {
+    it("it calls the onLogin method with the idToken", async () => {
       await instance.login(idToken);
-      expect(post).toHaveBeenCalledWith(loginPath, {idToken})
+      expect(onLogin).toHaveBeenCalledWith(idToken)
     });
   });
   

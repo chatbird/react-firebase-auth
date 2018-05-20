@@ -23,7 +23,7 @@ export type FirebaseConfigType = {
 export type FirebaseAuthProviderProps = {
   firebaseConfig: FirebaseConfigType,
   children?: any,
-  postAfterLoginPath?: string,
+  onLogin?: (idToken: string) => any,
   linkedInLinkPath?: string,
   linkedInLoginPath?: string,
   customToken?: string,
@@ -211,10 +211,11 @@ export class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderPr
   };
 
   login(idToken : string){
-    const {postAfterLoginPath} = this.props;
-    return postAfterLoginPath 
-      ? post(postAfterLoginPath, {idToken}) 
-      : new Promise((resolve) => resolve(false));
+    const {onLogin} = this.props;
+    return new Promise((resolve) => resolve(onLogin(idToken)))
+    // return postAfterLoginPath 
+    //   ? post(postAfterLoginPath, {idToken}) 
+    //   : new Promise((resolve) => resolve(false));
   }
 
   updateToken(user, forceRefresh = false){

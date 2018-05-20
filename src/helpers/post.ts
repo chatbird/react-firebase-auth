@@ -1,3 +1,5 @@
+import 'whatwg-fetch';
+
 const post = (url : string, body : object) => {
     return fetch(url, {
         method: 'POST',

@@ -3,7 +3,7 @@ import FirebaseContext from "./firebase_context";
 
 const FirebaseAuthConsumer = ({children}) => (
     <FirebaseContext.Consumer>
-      {children}
+      {value => children(value)}
     </FirebaseContext.Consumer>
   ); 
   

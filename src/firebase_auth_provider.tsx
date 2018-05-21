@@ -29,7 +29,8 @@ export type FirebaseConfigType = {
     linkedInLinkPath?: string,
     linkedInLoginPath?: string,
     customToken?: string,
-    debug?: boolean
+    debug?: boolean,
+    allowAnonymousSignup?: boolean
   }
   
   export type FirebaseAuthProviderState = {
@@ -237,9 +238,11 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   }
 
   onAuthStateChanged(user){
+    this.log("onAuthStateChanged", user);
+    this.setState({firebaseToken: null});
+
     if (user) {
       // this.log(user);
-      this.setState({firebaseToken: null});
       if(user.isAnonymous){
         return this.updateToken(user);
       }else{
@@ -249,7 +252,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
       }
     } else if(this.props.customToken){
       return this.signInWithCustomToken(this.props.customToken);
-    } else {
+    } else if(this.props.allowAnonymousSignup) {
       this.log("calling signInAnonymously()");
       return firebase.auth().signInAnonymously();
     }

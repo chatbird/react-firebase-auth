@@ -16,6 +16,7 @@ export declare type FirebaseAuthProviderProps = {
     linkedInLoginPath?: string;
     customToken?: string;
     debug?: boolean;
+    allowAnonymousSignup?: boolean;
 };
 export declare type FirebaseAuthProviderState = {
     firebaseToken: string;

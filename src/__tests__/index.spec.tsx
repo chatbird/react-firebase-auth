@@ -101,7 +101,7 @@ describe("<FirebaseAuthProvider />", () => {
   describe('onAuthStateChanged', () => {
     const idToken = "some_token";
     const currentUser = firebase.auth().currentUser;
-    const wrapper = shallow(<FirebaseAuthProvider firebaseConfig={demoConfig}/>);
+    const wrapper = shallow(<FirebaseAuthProvider allowAnonymousSignup={true} firebaseConfig={demoConfig}/>);
     const instance = wrapper.instance() as FirebaseAuthProvider;
 
     describe("when user is anonymous", () => {

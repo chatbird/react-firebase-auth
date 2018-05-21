@@ -2,7 +2,8 @@
   "name": "react-firebase-auth",
   "version": "0.0.2",
   "description": "",
-  "main": "main.js",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "build": "rm -r ./lib/* && tsc",
     "watch": "tsc --watch --skipLibCheck",
@@ -69,7 +70,6 @@
     "url": "https://github.com/gurschitz/react-firebase-auth/issues"
   },
   "homepage": "https://github.com/gurschitz/react-firebase-auth#readme",
-  "types": "./lib/index.d.ts",
   "dependencies": {
     "firebase": "^4.6.2",
     "whatwg-fetch": "^2.0.4"

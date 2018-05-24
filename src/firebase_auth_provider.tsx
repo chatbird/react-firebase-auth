@@ -63,9 +63,7 @@ export type FirebaseConfigType = {
     let provider = getProvider(providerId);
     return () => firebase.auth().signInWithRedirect(provider);
   };
-  
-  const signInWithLinkedIn = () => window.location.replace("/auth/linkedin");
-  
+    
   const signInWithPopup = (providerId: string) => {
     let provider = getProvider(providerId);
     return () =>  firebase.auth().signInWithPopup(provider);
@@ -93,14 +91,14 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     existingEmail: null
   };
 
+  signInWithLinkedIn = () => window.location.replace(this.props.linkedInLoginPath);
+
   providers : ProviderType[] = [
     {id: "facebook.com", signInWithRedirect: signInWithRedirect("facebook.com"), signInWithPopup: signInWithPopup("facebook.com")},
     {id: "twitter.com", signInWithRedirect: signInWithRedirect("twitter.com"), signInWithPopup: signInWithPopup("twitter.com")},
     {id: "github.com", signInWithRedirect: signInWithRedirect("github.com"), signInWithPopup: signInWithPopup("github.com")},
-    {id: "linkedin.com", signInWithRedirect: signInWithLinkedIn, signInWithPopup: signInWithLinkedIn}
+    {id: "linkedin.com", signInWithRedirect: this.signInWithLinkedIn, signInWithPopup: this.signInWithLinkedIn}
   ];
-
-  signInWithLinkedIn = () => window.location.replace(this.props.linkedInLoginPath);
 
   componentDidMount(){
     const {customToken} = this.props;

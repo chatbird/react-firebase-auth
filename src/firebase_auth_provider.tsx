@@ -10,6 +10,7 @@ import handleRecoverEmail from "./helpers/handle_recover_email";
 import updateProfile from "./helpers/update_profile";
 import updateEmail from "./helpers/update_email";
 import FirebaseContext from "./firebase_context";
+import appendQuery from "append-query";
 
 const PENDING_CREDENTIAL_KEY = "pendingCredential";
 
@@ -63,7 +64,7 @@ export type FirebaseConfigType = {
     let provider = getProvider(providerId);
     return () => firebase.auth().signInWithRedirect(provider);
   };
-    
+  
   const signInWithPopup = (providerId: string) => {
     let provider = getProvider(providerId);
     return () =>  firebase.auth().signInWithPopup(provider);
@@ -91,7 +92,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     existingEmail: null
   };
 
-  signInWithLinkedIn = () => window.location.replace(this.props.linkedInLoginPath);
+  signInWithLinkedIn = () => window.location.replace(appendQuery(this.props.linkedInLoginPath, {ref: window.location.href}));
 
   providers : ProviderType[] = [
     {id: "facebook.com", signInWithRedirect: signInWithRedirect("facebook.com"), signInWithPopup: signInWithPopup("facebook.com")},

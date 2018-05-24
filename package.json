@@ -71,6 +71,7 @@
   },
   "homepage": "https://github.com/gurschitz/react-firebase-auth#readme",
   "dependencies": {
+    "append-query": "^2.0.1",
     "firebase": "^4.6.2",
     "whatwg-fetch": "^2.0.4"
   }

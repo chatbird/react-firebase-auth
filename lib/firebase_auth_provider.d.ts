@@ -27,20 +27,20 @@ export declare type FirebaseAuthProviderState = {
 };
 export interface FirebaseApi {
     auth: () => any;
-    loading?: boolean;
-    providers?: any[];
-    firebaseToken?: string;
-    getFirebaseToken?: Function;
-    redirectResult?: any;
-    updateProfile?: Function;
-    updateEmail?: Function;
-    sendVerificationEmailToCurrentUser?: Function;
-    handleVerifyEmail?: Function;
-    handleRecoverEmail?: Function;
-    reauthenticateWithPopup?: Function;
-    signInWithCustomToken?: Function;
-    updateTokenForCurrentUser?: Function;
-    handleExistingAccountError?: Function;
+    loading: boolean;
+    providers: any[];
+    firebaseToken: string;
+    getFirebaseToken: Function;
+    redirectResult: any;
+    updateProfile: Function;
+    updateEmail: Function;
+    sendVerificationEmailToCurrentUser: Function;
+    handleVerifyEmail: Function;
+    handleRecoverEmail: Function;
+    reauthenticateWithPopup: Function;
+    signInWithCustomToken: Function;
+    updateTokenForCurrentUser: Function;
+    handleExistingAccountError: Function;
 }
 export declare type ProviderType = {
     id: string;

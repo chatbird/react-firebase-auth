@@ -43,7 +43,7 @@ export type FirebaseConfigType = {
   }
   
   export interface FirebaseApi {
-    auth: (any) => any,
+    auth: () => any,
     loading?: boolean,
     providers?: any[],
     firebaseToken?: string,
@@ -123,14 +123,18 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   }
 
   getPendingCredential(){
-    return new Promise((resolve) => {
-      resolve(localStorage.getItem(PENDING_CREDENTIAL_KEY));
+    return new Promise((resolve, reject) => {
+      try{
+        resolve(JSON.parse(localStorage.getItem(PENDING_CREDENTIAL_KEY)));
+      }catch(error){
+        reject();
+      }
     });
   }
 
   setPendingCredential(pendingCredential){
     return new Promise((resolve) => {
-      localStorage.setItem(PENDING_CREDENTIAL_KEY, pendingCredential);
+      localStorage.setItem(PENDING_CREDENTIAL_KEY, JSON.stringify(pendingCredential));
       resolve();
     });
   }
@@ -161,7 +165,10 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   };
 
   handleRedirect(pendingCredential){
-    if(pendingCredential) this.log("handleRedirect with pendingCredential", pendingCredential);
+    if(pendingCredential) {
+      this.log("handleRedirect with pendingCredential");
+      this.log(pendingCredential);
+    }
 
     firebase.auth().getRedirectResult().then((result) => {
       if(result.user) this.log("Redirect Result", result);

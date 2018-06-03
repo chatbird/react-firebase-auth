@@ -26,7 +26,7 @@ export declare type FirebaseAuthProviderState = {
     pendingCredential: any;
 };
 export interface FirebaseApi {
-    auth: (any) => any;
+    auth: () => any;
     loading?: boolean;
     providers?: any[];
     firebaseToken?: string;

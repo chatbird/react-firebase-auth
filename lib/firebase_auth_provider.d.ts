@@ -1,5 +1,6 @@
 /// <reference types="react" />
 import * as React from "react";
+import 'firebase/auth';
 export declare type FirebaseConfigType = {
     apiKey: string;
     authDomain: string;
@@ -56,7 +57,7 @@ declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderP
     getPendingCredential(): Promise<{}>;
     setPendingCredential(pendingCredential: any): Promise<{}>;
     removePendingCredential(): void;
-    signInWithCustomToken(token: any): any;
+    signInWithCustomToken(token: any): Promise<any>;
     handleRedirect(pendingCredential: any): void;
     handleExistingAccountError(error: any): Promise<void>;
     login(idToken: string): Promise<{}>;

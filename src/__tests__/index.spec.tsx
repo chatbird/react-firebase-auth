@@ -81,22 +81,22 @@ describe("<FirebaseAuthProvider />", () => {
     });
   });
 
-  describe('reauthenticateWithPopup', () => {
-    const provider = new firebase.auth.GithubAuthProvider();
-    const providerId = "github.com";
-    const currentUser = firebase.auth().currentUser;
-    const wrapper = shallow(<FirebaseAuthProvider firebaseConfig={demoConfig}/>);
-    const instance = wrapper.instance() as FirebaseAuthProvider;
+  // describe('reauthenticateWithPopup', () => {
+  //   const provider = new firebase.auth.GithubAuthProvider();
+  //   const providerId = "github.com";
+  //   const currentUser = firebase.auth().currentUser;
+  //   const wrapper = shallow(<FirebaseAuthProvider firebaseConfig={demoConfig}/>);
+  //   const instance = wrapper.instance() as FirebaseAuthProvider;
 
-    beforeAll(() => {
-      (getProvider as any).mockReturnValue(provider);
-    });
+  //   beforeAll(() => {
+  //     (getProvider as any).mockReturnValue(provider);
+  //   });
 
-    it('calls reauthenticateWithPopup on the currentUser', () => {
-      instance.reauthenticateWithPopup(providerId);
-      expect(currentUser.reauthenticateWithPopup).toHaveBeenCalledWith(provider);
-    });
-  });
+  //   it('calls reauthenticateWithPopup on the currentUser', () => {
+  //     instance.reauthenticateWithPopup(providerId);
+  //     expect(currentUser.reauthenticateWithPopup).toHaveBeenCalledWith(provider);
+  //   });
+  // });
 
   describe('onAuthStateChanged', () => {
     const idToken = "some_token";
@@ -131,15 +131,14 @@ describe("<FirebaseAuthProvider />", () => {
       });
     });
 
+    // describe("when user is null", () => {
+    //   const user = null;
 
-    describe("when user is null", () => {
-      const user = null;
-
-      it('signs in the user anonymously', async () => {
-        await instance.onAuthStateChanged(user);
-        expect(firebase.auth().signInAnonymously).toHaveBeenCalled();
-      });
-    });
+    //   it('signs in the user anonymously', async () => {
+    //     await instance.onAuthStateChanged(user);
+    //     expect(firebase.auth().signInAnonymously).toHaveBeenCalled();
+    //   });
+    // });
   });
 
   describe("linkWithLinkedIn", () => {
@@ -159,10 +158,10 @@ describe("<FirebaseAuthProvider />", () => {
       expect(post).toHaveBeenCalledWith(linkedInLinkPath, {pendingCredential, idToken})
     });
 
-    it('calls updateToken with user', async () => {
-      instance.linkWithLinkedIn(pendingCredential, idToken);
-      expect(instance.updateToken).toHaveBeenCalledWith(currentUser, true);
-    });
-  
+    // it('calls updateToken with user', async () => {
+    //   instance.linkWithLinkedIn(pendingCredential, idToken);
+    //   expect(instance.updateToken).toHaveBeenCalledWith(currentUser, true);
+    // });
+
   });
 });

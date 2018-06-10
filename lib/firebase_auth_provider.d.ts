@@ -56,7 +56,7 @@ declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderP
     getPendingCredential(): Promise<{}>;
     setPendingCredential(pendingCredential: any): Promise<{}>;
     removePendingCredential(): void;
-    signInWithCustomToken(token: any): Promise<any>;
+    signInWithCustomToken(token: any): any;
     handleRedirect(pendingCredential: any): void;
     handleExistingAccountError(error: any): Promise<void>;
     login(idToken: string): Promise<{}>;

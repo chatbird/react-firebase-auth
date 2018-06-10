@@ -1,6 +1,7 @@
 import * as React from "react";
 import setFirebaseConfig from "./helpers/set_firebase_config";
-import * as auth from 'firebase/auth';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import getProvider from "./helpers/get_provider";
 import sendVerificationEmailToCurrentUser from "./helpers/send_verification_email_to_current_user";
 import post from "./helpers/post";
@@ -61,12 +62,12 @@ export type FirebaseConfigType = {
   
   const signInWithRedirect = (providerId: string) => {
     let provider = getProvider(providerId);
-    return () => auth().signInWithRedirect(provider);
+    return () => firebase.auth().signInWithRedirect(provider);
   };
   
   const signInWithPopup = (providerId: string) => {
     let provider = getProvider(providerId);
-    return () =>  auth().signInWithPopup(provider);
+    return () =>  firebase.auth().signInWithPopup(provider);
   };
   
   export type ProviderType = {
@@ -144,7 +145,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
 
   signInWithCustomToken(token){
     this.log("signInWithCustomToken token", token);
-    return auth().signInWithCustomToken(token)
+    return firebase.auth().signInWithCustomToken(token)
       .then((user) => {
         this.log("signInWithCustomToken user", user);
         return this.getPendingCredential()
@@ -169,7 +170,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
       this.log(pendingCredential);
     }
 
-    auth().getRedirectResult().then((result) => {
+    firebase.auth().getRedirectResult().then((result) => {
       if(result.user) this.log("Redirect Result", result);
       if(pendingCredential && result.user){
         if(pendingCredential.providerId === "linkedin.com"){
@@ -209,7 +210,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     return this.setPendingCredential(pendingCredential)
       .then(() => {
         this.log("fetching providers for existingEmail", existingEmail);
-        return auth().fetchProvidersForEmail(existingEmail);
+        return firebase.auth().fetchProvidersForEmail(existingEmail);
       })
       .then((existingProviders) => {
         if(existingProviders.length === 0) existingProviders = ["linkedin.com"];
@@ -240,7 +241,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   }
 
   reauthenticateWithPopup(providerId){
-    auth()
+    firebase.auth()
     .currentUser
     .reauthenticateWithPopup(getProvider(providerId))
     .then(this.updateTokenForCurrentUser.bind(this));
@@ -263,7 +264,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
       return this.signInWithCustomToken(this.props.customToken);
     } else if(this.props.allowAnonymousSignup) {
       this.log("calling signInAnonymously()");
-      return auth().signInAnonymously();
+      return firebase.auth().signInAnonymously();
     }
   };
 
@@ -271,7 +272,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     this.props.debug ? console.log(message, ...optionalParams) : null;
 
   private updateTokenForCurrentUser = () =>
-    this.updateToken(auth().currentUser, true);
+    this.updateToken(firebase.auth().currentUser, true);
   
   private updateEmail = (email) =>
     updateEmail(email)
@@ -295,7 +296,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   };
 
   private setAuthStateListener = () => {
-    return auth().onAuthStateChanged(this.onAuthStateChanged.bind(this));
+    return firebase.auth().onAuthStateChanged(this.onAuthStateChanged.bind(this));
   };
 
   render() {
@@ -309,7 +310,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     
     const value : {firebase: FirebaseApi} = {
       firebase: {
-        auth,
+        auth: firebase.auth,
         loading,
         providers: mappedExistingProviders,
         firebaseToken,

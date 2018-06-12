@@ -1,5 +1,6 @@
 /// <reference types="react" />
 import * as React from "react";
+import 'firebase/auth';
 export declare type FirebaseConfigType = {
     apiKey: string;
     authDomain: string;

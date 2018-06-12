@@ -1,7 +1,6 @@
 import * as React from "react";
 import setFirebaseConfig from "./helpers/set_firebase_config";
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import firebase from 'firebase';
 import getProvider from "./helpers/get_provider";
 import sendVerificationEmailToCurrentUser from "./helpers/send_verification_email_to_current_user";
 import post from "./helpers/post";

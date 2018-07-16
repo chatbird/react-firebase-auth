@@ -1,3 +1,6 @@
-export {default as FirebaseAuthProvider} from "./firebase_auth_provider";;
-export {default as FirebaseAuthConsumer} from "./firebase_auth_consumer";;
-export {FirebaseConfigType, FirebaseAuthProviderProps, FirebaseAuthProviderState, FirebaseApi} from "./firebase_auth_provider";
+export {FirebaseConfigType, FirebaseAuthProviderProps, FirebaseAuthProviderState, IFirebaseContext, ProviderType} from "./FirebaseAuthProvider";
+export {default as FirebaseAuthProvider} from "./FirebaseAuthProvider";
+export {default as FirebaseAuthConsumer} from "./FirebaseAuthConsumer";
+export { ProviderIdType } from "./helpers/getProvider";
+export {default as CurrentUser} from './CurrentUser';
+export {default as Auth, AuthType} from './Auth';

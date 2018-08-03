@@ -3,4 +3,5 @@ export {default as FirebaseAuthProvider} from "./FirebaseAuthProvider";
 export {default as FirebaseAuthConsumer} from "./FirebaseAuthConsumer";
 export { ProviderIdType } from "./helpers/getProvider";
 export {default as CurrentUser} from './CurrentUser';
+export {default as IsAnonymous} from './IsAnonymous';
 export {default as Auth, AuthType} from './Auth';

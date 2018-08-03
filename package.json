@@ -73,6 +73,7 @@
   "dependencies": {
     "append-query": "^2.0.1",
     "firebase": "^4.6.2",
+    "jwt-decode": "^2.2.0",
     "whatwg-fetch": "^2.0.4"
   }
 }

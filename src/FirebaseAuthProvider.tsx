@@ -6,6 +6,7 @@ import getProvider, { ProviderIdType } from "./helpers/getProvider";
 import post from "./helpers/post";
 import FirebaseContext from "./FirebaseContext";
 import * as appendQuery from "append-query";
+import * as jwtDecode from 'jwt-decode';
 
 const PENDING_CREDENTIAL_KEY = "pendingCredential";
 
@@ -46,6 +47,7 @@ export interface IFirebaseContext {
   auth: firebase.auth.Auth,
   loading: boolean,
   firebaseToken: string,
+  decodedToken: any,
   hasExistingProviders: boolean,
   providers: ProviderType[],
   handleExistingAccountError: (error: ExistingAccountError) => Promise<any>,
@@ -93,7 +95,8 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   providers : ProviderType[] = [
     {id: "facebook.com", signInWithRedirect: signInWithRedirect("facebook.com"), signInWithPopup: signInWithPopup("facebook.com")},
     {id: "twitter.com", signInWithRedirect: signInWithRedirect("twitter.com"), signInWithPopup: signInWithPopup("twitter.com")},
-    {id: "github.com", signInWithRedirect: signInWithRedirect("github.com"), signInWithPopup: signInWithPopup("github.com")},
+    // {id: "github.com", signInWithRedirect: signInWithRedirect("github.com"), signInWithPopup: signInWithPopup("github.com")},
+    {id: "google.com", signInWithRedirect: signInWithRedirect("google.com"), signInWithPopup: signInWithPopup("google.com")},
     {id: "linkedin.com", signInWithRedirect: this.signInWithLinkedIn, signInWithPopup: this.signInWithLinkedIn}
   ];
 
@@ -226,13 +229,15 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     const {children} = this.props;
     let {firebaseToken, existingProviders, handledRedirect} = this.state;
     const filteredProviders = existingProviders ? this.providers.filter(({id} : ProviderType) => existingProviders.includes(id)) : this.providers;
-    const hasExistingProviders = filteredProviders && filteredProviders.length > 0;
+    const hasExistingProviders = existingProviders && filteredProviders && filteredProviders.length > 0;
     const loading = !firebaseToken || !handledRedirect;
-    
+    const decodedToken = firebaseToken ? jwtDecode(firebaseToken) : {};
+
     const value : IFirebaseContext = {
       auth: firebase.auth(),
       loading,
       firebaseToken,
+      decodedToken,
       handleExistingAccountError: this.handleExistingAccountError,
       refreshToken: this.refreshToken,
       providers: filteredProviders,

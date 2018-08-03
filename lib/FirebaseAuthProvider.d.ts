@@ -35,6 +35,7 @@ export interface IFirebaseContext {
     auth: firebase.auth.Auth;
     loading: boolean;
     firebaseToken: string;
+    decodedToken: any;
     hasExistingProviders: boolean;
     providers: ProviderType[];
     handleExistingAccountError: (error: ExistingAccountError) => Promise<any>;

@@ -1,6 +1,6 @@
 {
   "name": "@chatbird/react-firebase-auth",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A firebase auth component built on top of the new context API of React 16.3.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",

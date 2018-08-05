@@ -153,11 +153,14 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
         }
       }else{
         this.setState({handledRedirect: true});
+        this.removePendingCredential();
       }
     }).catch((error) => {
       this.setState({handledRedirect: true});
       let errorMessage = error.message;
       this.log("Error after Redirect", errorMessage);
+      this.removePendingCredential();
+      this.log("remove old pending credential");
       if (error.code === 'auth/account-exists-with-different-credential') {
         this.handleExistingAccountError(error);
       }
@@ -206,8 +209,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     if(user){
      return user.getIdToken()
       .then((firebaseToken) => {
-        this.setState({firebaseToken});
-        this.login(firebaseToken);
+        this.login(firebaseToken).then(() => this.setState({firebaseToken}));
       });
     }else if(this.props.allowAnonymousSignup){
       this.log("calling signInAnonymously()");

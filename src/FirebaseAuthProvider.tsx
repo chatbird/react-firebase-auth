@@ -209,7 +209,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     if(user){
      return user.getIdToken()
       .then((firebaseToken) => {
-        this.login(firebaseToken).then(() => this.setState({firebaseToken}));
+        return this.login(firebaseToken).then(() => this.setState({firebaseToken}));
       });
     }else if(this.props.allowAnonymousSignup){
       this.log("calling signInAnonymously()");

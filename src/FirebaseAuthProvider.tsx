@@ -100,11 +100,16 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     {id: "linkedin.com", signInWithRedirect: this.signInWithLinkedIn, signInWithPopup: this.signInWithLinkedIn}
   ];
 
-  componentDidMount(){
-    this.getPendingCredential()
-      .then((pendingCredential) => this.handleRedirect(pendingCredential))
-      .catch(() => this.handleRedirect())
-      .then(this.setAuthStateListener);
+  async componentDidMount(){
+    const pendingCredential = await this.getPendingCredential();
+    
+    try{
+      await this.handleRedirect(pendingCredential)
+    }catch(error){
+      this.log(error);
+    }
+  
+    this.setAuthStateListener();
   }
 
   getPendingCredential(){
@@ -128,58 +133,46 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     localStorage.removeItem(PENDING_CREDENTIAL_KEY);
   }
 
-  handleRedirect = (pendingCredential = null) => {
-    if(pendingCredential) {
-      this.log("handleRedirect with pendingCredential");
-      this.log(pendingCredential);
-    }
+  handleRedirect = async (pendingCredential = null) => {
+    try{ 
+      const result = await firebase.auth().getRedirectResult();
 
-    firebase.auth().getRedirectResult().then((result) => {
-      if(result.user) this.log("Redirect Result", result);
-      if(pendingCredential && result.user){
+      const user = result.user;
+      if(pendingCredential && user){
         if(pendingCredential.providerId === "linkedin.com"){
-          this.log("Linking with linkedin.com");
-          result.user.getIdToken()
-            .then((idToken) => this.linkWithLinkedIn(pendingCredential, idToken))
-            .then(this.removePendingCredential.bind(this))
-            .then(() => this.setState({handledRedirect: true}));
+          const idToken = await user.getIdToken();
+          await this.linkWithLinkedIn(pendingCredential, idToken);
+          this.removePendingCredential();
+          this.setState({handledRedirect: true});
         }else{
-          this.log("Linking with ", pendingCredential.providerId);
-          return result.user
-            .linkAndRetrieveDataWithCredential(pendingCredential)
-            .then(this.removePendingCredential.bind(this))
-            .then(this.refreshToken)
-            .then(() => this.setState({handledRedirect: true}));
+          await user.linkAndRetrieveDataWithCredential(pendingCredential);
+          this.removePendingCredential();
+          this.refreshToken();
+          this.setState({handledRedirect: true});
         }
       }else{
-        this.setState({handledRedirect: true});
         this.removePendingCredential();
+        this.setState({handledRedirect: true});
       }
-    }).catch((error) => {
+    }catch(error){
       this.setState({handledRedirect: true});
-      let errorMessage = error.message;
-      this.log("Error after Redirect", errorMessage);
       this.removePendingCredential();
-      this.log("remove old pending credential");
       if (error.code === 'auth/account-exists-with-different-credential') {
         this.handleExistingAccountError(error);
       }
-    })
+    }
   };
 
   handleExistingAccountError = (error) => {
     const pendingCredential = error.credential;
     const existingEmail = error.email;
 
-    this.log("handleExistingAccountError", error);
     return this.setPendingCredential(pendingCredential)
       .then(() => {
-        this.log("fetching providers for existingEmail", existingEmail);
         return firebase.auth().fetchProvidersForEmail(existingEmail);
       })
       .then((existingProviders) => {
         if(existingProviders.length === 0) existingProviders = ["linkedin.com"];
-        this.log("fetched existingProviders", existingProviders);
         this.setState({existingProviders, pendingCredential, existingEmail});
       });
   };
@@ -190,7 +183,6 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   }
 
   updateToken(user, forceRefresh = false){
-    this.log("updateToken called");
     return user.getIdToken(forceRefresh)
     .then((firebaseToken) => {
       this.setState({firebaseToken});
@@ -203,16 +195,13 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
       .then(this.refreshToken);
   }
 
-  onAuthStateChanged = (user) => {
-    this.log("onAuthStateChanged", user);
+  onAuthStateChanged = async (user) => {
     
     if(user){
-     return user.getIdToken()
-      .then((firebaseToken) => {
-        return this.login(firebaseToken).then(() => this.setState({firebaseToken}));
-      });
+      const firebaseToken = await user.getIdToken();
+      await this.login(firebaseToken);
+      return this.setState({firebaseToken});
     }else if(this.props.allowAnonymousSignup){
-      this.log("calling signInAnonymously()");
       return firebase.auth().signInAnonymously();
     }
   }

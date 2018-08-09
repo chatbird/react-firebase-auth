@@ -47,7 +47,6 @@ class IsAnonymous extends React.Component<IIsAnonymousProps>{
 
   private isAnonymous(decodedToken){
     const isAnonymous = !decodedToken || decodedToken.provider_id === "anonymous";
-    console.log("isAnonymous", isAnonymous);
     return isAnonymous;
   }
 }

@@ -36,6 +36,8 @@ export interface IFirebaseContext {
     loading: boolean;
     firebaseToken: string;
     decodedToken: any;
+    getFirebaseToken: () => Promise<String | null>;
+    tokenExpired: boolean;
     hasExistingProviders: boolean;
     providers: ProviderType[];
     handleExistingAccountError: (error: ExistingAccountError) => Promise<any>;
@@ -52,18 +54,21 @@ declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderP
     signInWithLinkedIn: () => void;
     providers: ProviderType[];
     componentDidMount(): Promise<void>;
-    getPendingCredential(): Promise<{}>;
-    setPendingCredential(pendingCredential: any): Promise<{}>;
+    getPendingCredential: () => Promise<any>;
+    setPendingCredential: (pendingCredential: any) => Promise<void>;
     removePendingCredential(): void;
     handleRedirect: (pendingCredential?: any) => Promise<void>;
     handleExistingAccountError: (error: any) => Promise<void>;
-    login: (idToken: string) => Promise<{}>;
-    updateToken(user: any, forceRefresh?: boolean): any;
-    linkWithLinkedIn(pendingCredential: any, idToken: any): Promise<any>;
+    login: (idToken: string) => Promise<any>;
+    updateToken: (user: any, forceRefresh?: boolean) => Promise<any>;
+    linkWithLinkedIn: (pendingCredential: any, idToken: any) => Promise<void>;
     onAuthStateChanged: (user: any) => Promise<any>;
     private log;
     private refreshToken;
     private setAuthStateListener;
+    private getFirebaseToken;
+    private getDecodedToken;
+    private isTokenExpired;
     render(): JSX.Element;
 }
 export default FirebaseAuthProvider;

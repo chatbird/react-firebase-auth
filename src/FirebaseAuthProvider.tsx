@@ -48,6 +48,8 @@ export interface IFirebaseContext {
   loading: boolean,
   firebaseToken: string,
   decodedToken: any,
+  getFirebaseToken: () => Promise<String | null>,
+  tokenExpired: boolean,
   hasExistingProviders: boolean,
   providers: ProviderType[],
   handleExistingAccountError: (error: ExistingAccountError) => Promise<any>,
@@ -112,21 +114,16 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     this.setAuthStateListener();
   }
 
-  getPendingCredential(){
-    return new Promise((resolve, reject) => {
-      try{
-        resolve(JSON.parse(localStorage.getItem(PENDING_CREDENTIAL_KEY)));
-      }catch(error){
-        reject();
-      }
-    });
+  getPendingCredential = async () => {
+    try{
+      return JSON.parse(localStorage.getItem(PENDING_CREDENTIAL_KEY));
+    }catch(error){
+      return;
+    }
   }
 
-  setPendingCredential(pendingCredential){
-    return new Promise((resolve) => {
-      localStorage.setItem(PENDING_CREDENTIAL_KEY, JSON.stringify(pendingCredential));
-      resolve();
-    });
+  setPendingCredential = async (pendingCredential) => {
+    localStorage.setItem(PENDING_CREDENTIAL_KEY, JSON.stringify(pendingCredential));
   }
 
   removePendingCredential(){
@@ -163,40 +160,37 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     }
   };
 
-  handleExistingAccountError = (error) => {
+  handleExistingAccountError = async (error) => {
     const pendingCredential = error.credential;
     const existingEmail = error.email;
 
-    return this.setPendingCredential(pendingCredential)
-      .then(() => {
-        return firebase.auth().fetchProvidersForEmail(existingEmail);
-      })
-      .then((existingProviders) => {
-        if(existingProviders.length === 0) existingProviders = ["linkedin.com"];
-        this.setState({existingProviders, pendingCredential, existingEmail});
-      });
+    await this.setPendingCredential(pendingCredential);
+    let existingProviders = await firebase.auth().fetchProvidersForEmail(existingEmail);
+   
+    if(existingProviders.length === 0){
+      existingProviders = ["linkedin.com"];
+    }
+
+    this.setState({existingProviders, pendingCredential, existingEmail});
   };
 
-  login = (idToken : string) => {
+  login = async (idToken : string) => {
     const {onLogin} = this.props;
-    return new Promise((resolve) => resolve(onLogin(idToken)))
+    return await onLogin(idToken);
   }
 
-  updateToken(user, forceRefresh = false){
-    return user.getIdToken(forceRefresh)
-    .then((firebaseToken) => {
-      this.setState({firebaseToken});
-      return firebaseToken;
-    });
+  updateToken = async (user, forceRefresh = false) => {
+    const firebaseToken = await user.getIdToken(forceRefresh);
+    this.setState({firebaseToken});
+    return firebaseToken;
   }
 
-  linkWithLinkedIn(pendingCredential, idToken){
-    return post(this.props.linkedInLinkPath, {pendingCredential, idToken})
-      .then(this.refreshToken);
+  linkWithLinkedIn = async (pendingCredential, idToken) => {
+    await post(this.props.linkedInLinkPath, {pendingCredential, idToken});
+    this.refreshToken();
   }
 
   onAuthStateChanged = async (user) => {
-    
     if(user){
       const firebaseToken = await user.getIdToken();
       await this.login(firebaseToken);
@@ -209,12 +203,29 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   private log = (message?: any, ...optionalParams: any[]) => 
     this.props.debug ? console.log(message, ...optionalParams) : null;
 
-  private refreshToken = () =>
-    this.updateToken(firebase.auth().currentUser, true);
+  private refreshToken = () => this.updateToken(firebase.auth().currentUser, true);
 
   private setAuthStateListener = () => {
     return firebase.auth().onAuthStateChanged(this.onAuthStateChanged);
   };
+
+  private getFirebaseToken = async () : Promise<String | null> => {
+    if(this.isTokenExpired()){
+      return await this.refreshToken();
+    }
+    return this.state.firebaseToken;
+  }
+
+  private getDecodedToken = () => {
+    const {firebaseToken} = this.state;
+    return firebaseToken ? jwtDecode(firebaseToken) : {};
+  }
+
+  private isTokenExpired = () => {
+    const decodedToken = this.getDecodedToken();
+    const current_time = new Date().getTime() / 1000;
+    return current_time > decodedToken.exp;
+  }
 
   render() {
     const {children} = this.props;
@@ -222,13 +233,14 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     const filteredProviders = existingProviders ? this.providers.filter(({id} : ProviderType) => existingProviders.includes(id)) : this.providers;
     const hasExistingProviders = existingProviders && filteredProviders && filteredProviders.length > 0;
     const loading = !firebaseToken || !handledRedirect;
-    const decodedToken = firebaseToken ? jwtDecode(firebaseToken) : {};
 
     const value : IFirebaseContext = {
       auth: firebase.auth(),
       loading,
       firebaseToken,
-      decodedToken,
+      getFirebaseToken: this.getFirebaseToken,
+      tokenExpired: this.isTokenExpired(),
+      decodedToken: this.getDecodedToken(),
       handleExistingAccountError: this.handleExistingAccountError,
       refreshToken: this.refreshToken,
       providers: filteredProviders,

@@ -15,14 +15,16 @@ interface IIsAnonymousProps{
 
 class IsAnonymous extends React.Component<IIsAnonymousProps>{
   public render(){
-
     const {children, invert} = this.props;
 
     if(typeof children === "function"){
       return (
         <FirebaseAuthConsumer>
           {
-            ({decodedToken, loading}) => children({isAnonymous: this.isAnonymous(decodedToken), loading})
+            ({decodedToken, loading}) => {
+              const isAnonymous = this.isAnonymous(decodedToken);
+              return children({isAnonymous, loading});
+            }
           }
         </FirebaseAuthConsumer>
       )

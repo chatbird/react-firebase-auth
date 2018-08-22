@@ -233,6 +233,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     const filteredProviders = existingProviders ? this.providers.filter(({id} : ProviderType) => existingProviders.includes(id)) : this.providers;
     const hasExistingProviders = existingProviders && filteredProviders && filteredProviders.length > 0;
     const loading = !firebaseToken || !handledRedirect;
+    const decodedToken = this.getDecodedToken();
 
     const value : IFirebaseContext = {
       auth: firebase.auth(),
@@ -240,7 +241,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
       firebaseToken,
       getFirebaseToken: this.getFirebaseToken,
       tokenExpired: this.isTokenExpired(),
-      decodedToken: this.getDecodedToken(),
+      decodedToken,
       handleExistingAccountError: this.handleExistingAccountError,
       refreshToken: this.refreshToken,
       providers: filteredProviders,

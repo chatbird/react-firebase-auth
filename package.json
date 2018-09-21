@@ -1,6 +1,6 @@
 {
   "name": "@chatbird/react-firebase-auth",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A firebase auth component built on top of the new context API of React 16.3.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -17,8 +17,8 @@
     "@types/chai": "^4.1.3",
     "@types/enzyme": "^3.1.10",
     "@types/jest": "^22.2.3",
-    "@types/react": "^16.4.6",
-    "@types/react-dom": "^16.0.5",
+    "@types/react": "^16.4.14",
+    "@types/react-dom": "^16.0.7",
     "@types/sinon": "^4.3.3",
     "babel-core": "^6.26.3",
     "babel-jest": "^22.4.4",
@@ -27,8 +27,8 @@
     "enzyme-adapter-react-16": "^1.1.1",
     "jest": "^22.4.3",
     "jsdom": "^11.10.0",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
+    "react": "^16.5.0",
+    "react-dom": "^16.5.0",
     "regenerator-runtime": "^0.11.1",
     "sinon": "^5.0.7",
     "ts-jest": "^22.4.6",
@@ -72,7 +72,7 @@
   "homepage": "https://github.com/gurschitz/react-firebase-auth#readme",
   "dependencies": {
     "append-query": "^2.0.1",
-    "firebase": "^4.6.2",
+    "firebase": "^5.4.2",
     "jwt-decode": "^2.2.0",
     "whatwg-fetch": "^2.0.4"
   }

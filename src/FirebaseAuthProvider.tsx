@@ -26,6 +26,7 @@ export type FirebaseAuthProviderProps = {
   linkedInLinkPath?: string,
   linkedInLoginPath?: string,
   customToken?: string,
+  user?: firebase.User | null,
   debug?: boolean,
   allowAnonymousSignup?: boolean
 }
@@ -112,6 +113,10 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     }
   
     this.setAuthStateListener();
+
+    if(this.props.user){
+      await firebase.auth().updateCurrentUser(this.props.user);
+    }
   }
 
   getPendingCredential = async () => {
@@ -224,7 +229,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   private isTokenExpired = () => {
     const decodedToken = this.getDecodedToken();
     const current_time = new Date().getTime() / 1000;
-    return current_time > decodedToken.exp;
+    return decodedToken.exp ? current_time > decodedToken.exp : true;
   }
 
   render() {

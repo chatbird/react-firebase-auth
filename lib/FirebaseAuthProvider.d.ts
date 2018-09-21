@@ -17,6 +17,7 @@ export declare type FirebaseAuthProviderProps = {
     linkedInLinkPath?: string;
     linkedInLoginPath?: string;
     customToken?: string;
+    user?: firebase.User | null;
     debug?: boolean;
     allowAnonymousSignup?: boolean;
 };
@@ -62,7 +63,7 @@ declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderP
     login: (idToken: string) => Promise<any>;
     updateToken: (user: any, forceRefresh?: boolean) => Promise<any>;
     linkWithLinkedIn: (pendingCredential: any, idToken: any) => Promise<void>;
-    onAuthStateChanged: (user: any) => Promise<any>;
+    onAuthStateChanged: (user: any) => Promise<void | firebase.auth.UserCredential>;
     private log;
     private refreshToken;
     private setAuthStateListener;

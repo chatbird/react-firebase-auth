@@ -1,15 +1,12 @@
 import * as React from 'react';
 declare type IsAnonymousFnParams = {
     isAnonymous: boolean;
-    loading?: boolean;
+    loading: boolean;
 };
-declare type IsAnonymousFn = ({ isAnonymous, loading }: IsAnonymousFnParams) => React.ReactNode;
+declare type IsAnonymousFn = ({ isAnonymous }: IsAnonymousFnParams) => React.ReactNode;
 interface IIsAnonymousProps {
     children: IsAnonymousFn | React.ReactNode;
     invert?: boolean;
 }
-declare class IsAnonymous extends React.Component<IIsAnonymousProps> {
-    render(): JSX.Element;
-    private isAnonymous;
-}
+declare const IsAnonymous: (props: IIsAnonymousProps) => JSX.Element;
 export default IsAnonymous;

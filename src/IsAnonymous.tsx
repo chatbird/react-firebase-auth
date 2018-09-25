@@ -3,54 +3,63 @@ import FirebaseAuthConsumer from './FirebaseAuthConsumer';
 
 type IsAnonymousFnParams = {
   isAnonymous: boolean,
-  loading?: boolean
+  loading: boolean
 }
 
-type IsAnonymousFn = ({isAnonymous, loading} : IsAnonymousFnParams) => React.ReactNode
+type IsAnonymousFn = ({isAnonymous} : IsAnonymousFnParams) => React.ReactNode
 
 interface IIsAnonymousProps{
   children: IsAnonymousFn | React.ReactNode,
   invert?: boolean
 }
 
-class IsAnonymous extends React.Component<IIsAnonymousProps>{
+interface IInnerIsAnonymousProps{
+  getCurrentUser: () => Promise<firebase.User>
+}
+
+interface IIsAnonymousState{
+  loading: boolean,
+  isAnonymous?: boolean
+}
+
+class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnonymousProps, IIsAnonymousState>{
+  public state = {
+    loading: true,
+    isAnonymous: undefined
+  }
+
+  public async componentDidMount(){
+    const user = await this.props.getCurrentUser();
+    const isAnonymous = !user || user.isAnonymous;
+    this.setState({isAnonymous, loading: false});
+  }
+
   public render(){
     const {children, invert} = this.props;
+    const {loading, isAnonymous} = this.state;
 
     if(typeof children === "function"){
-      return (
-        <FirebaseAuthConsumer>
-          {
-            ({decodedToken, loading}) => {
-              const isAnonymous = this.isAnonymous(decodedToken);
-              return children({isAnonymous, loading});
-            }
-          }
-        </FirebaseAuthConsumer>
-      )
+      return children({isAnonymous, loading});
     }else{
-      return (
-        <FirebaseAuthConsumer>
-          {
-            ({decodedToken}) => {
-              const isAnonymous = this.isAnonymous(decodedToken);
-
-              if(isAnonymous && !invert || !isAnonymous && invert){
-                return children;
-              }
-              
-              return null;
-            }
-          }
-        </FirebaseAuthConsumer>
-      )
+      if(!loading && (isAnonymous && !invert || !isAnonymous && invert)){
+        return children;
+      }
+      
+      return null;
     }
   }
+}
 
-  private isAnonymous(decodedToken){
-    const isAnonymous = !decodedToken || decodedToken.provider_id === "anonymous";
-    return isAnonymous;
-  }
+const IsAnonymous = (props : IIsAnonymousProps) => {
+  return (
+    <FirebaseAuthConsumer>
+      {
+        ({getCurrentUser}) => {
+          return <InnerIsAnonymous getCurrentUser={getCurrentUser} {...props}/>
+        }
+      }
+    </FirebaseAuthConsumer>
+  )
 }
 
 export default IsAnonymous;

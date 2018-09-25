@@ -22,8 +22,6 @@ export declare type FirebaseAuthProviderProps = {
     allowAnonymousSignup?: boolean;
 };
 export declare type FirebaseAuthProviderState = {
-    firebaseToken: string;
-    handledRedirect: boolean;
     existingProviders: string[];
     existingEmail: string;
     pendingCredential: any;
@@ -34,15 +32,11 @@ export declare type ExistingAccountError = {
 };
 export interface IFirebaseContext {
     auth: firebase.auth.Auth;
-    loading: boolean;
-    firebaseToken: string;
-    decodedToken: any;
-    getFirebaseToken: () => Promise<String | null>;
-    tokenExpired: boolean;
+    getFirebaseToken: () => Promise<string>;
+    getCurrentUser: () => Promise<firebase.User>;
     hasExistingProviders: boolean;
     providers: ProviderType[];
     handleExistingAccountError: (error: ExistingAccountError) => Promise<any>;
-    refreshToken: () => Promise<any>;
 }
 export declare type ProviderType = {
     id: ProviderIdType;
@@ -61,15 +55,13 @@ declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderP
     handleRedirect: (pendingCredential?: any) => Promise<void>;
     handleExistingAccountError: (error: any) => Promise<void>;
     login: (idToken: string) => Promise<any>;
-    updateToken: (user: any, forceRefresh?: boolean) => Promise<any>;
+    getCurrentUser: () => Promise<firebase.User>;
+    getToken: (forceRefresh?: boolean) => Promise<string>;
     linkWithLinkedIn: (pendingCredential: any, idToken: any) => Promise<void>;
-    onAuthStateChanged: (user: any) => Promise<void | firebase.auth.UserCredential>;
+    onAuthStateChanged: (user: any) => Promise<firebase.auth.UserCredential>;
     private log;
-    private refreshToken;
     private setAuthStateListener;
     private getFirebaseToken;
-    private getDecodedToken;
-    private isTokenExpired;
     render(): JSX.Element;
 }
 export default FirebaseAuthProvider;

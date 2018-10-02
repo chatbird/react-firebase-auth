@@ -58,7 +58,7 @@ declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderP
     getCurrentUser: () => Promise<firebase.User>;
     getToken: (forceRefresh?: boolean) => Promise<string>;
     linkWithLinkedIn: (pendingCredential: any, idToken: any) => Promise<void>;
-    onAuthStateChanged: (user: any) => Promise<firebase.auth.UserCredential>;
+    onAuthStateChanged: (user: any) => Promise<any>;
     private log;
     private setAuthStateListener;
     private getFirebaseToken;

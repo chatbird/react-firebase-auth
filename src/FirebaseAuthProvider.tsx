@@ -129,8 +129,8 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   handleRedirect = async (pendingCredential = null) => {
     try{ 
       const result = await firebase.auth().getRedirectResult();
-
       const user = result.user;
+
       if(pendingCredential && user){
         if(pendingCredential.providerId === "linkedin.com"){
           const idToken = await user.getIdToken();
@@ -177,8 +177,9 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
         return resolve(firebase.auth().currentUser);
       }
 
-      firebase.auth().onAuthStateChanged(user => {
-          resolve(user);
+      firebase.auth().onAuthStateChanged(async user => {
+        const finalUser = await this.onAuthStateChanged(user)
+        resolve(finalUser);
       }, reject);
     });
   }
@@ -197,8 +198,10 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     if(user){
       const firebaseToken = await user.getIdToken();
       await this.login(firebaseToken);
+      return user;
     }else if(this.props.allowAnonymousSignup){
-      return firebase.auth().signInAnonymously();
+      const userCredential : firebase.auth.UserCredential  = await firebase.auth().signInAnonymously();
+      return userCredential.user;
     }
   }
 

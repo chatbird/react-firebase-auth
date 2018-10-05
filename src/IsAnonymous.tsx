@@ -23,15 +23,28 @@ interface IIsAnonymousState{
 }
 
 class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnonymousProps, IIsAnonymousState>{
+
+  public cancelGetCurrentUser = () => {return};
+
+  public getCurrentUser = () => new Promise<firebase.User>((resolve, reject) => {
+    this.cancelGetCurrentUser = reject;
+    this.props.getCurrentUser().then(resolve);
+  });
+
   public state = {
     loading: true,
     isAnonymous: undefined
   }
 
-  public async componentDidMount(){
-    const user = await this.props.getCurrentUser();
-    const isAnonymous = !user || user.isAnonymous;
-    this.setState({isAnonymous, loading: false});
+  public componentDidMount(){
+    this.getCurrentUser().then((user) => {
+      const isAnonymous = !user || user.isAnonymous || user.providerData.length === 0;
+      this.setState({isAnonymous, loading: false});
+    });
+  }
+
+  public componentWillUnmount(){
+    this.cancelGetCurrentUser();
   }
 
   public render(){

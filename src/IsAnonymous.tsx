@@ -38,7 +38,9 @@ class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnony
 
   public componentDidMount(){
     this.getCurrentUser().then((user) => {
-      const isAnonymous = !user || user.isAnonymous || user.providerData.length === 0;
+      //console.log(user.providerId);
+
+      const isAnonymous = !user || user.isAnonymous; //|| user.providerData.length === 0;
       this.setState({isAnonymous, loading: false});
     });
   }
@@ -50,7 +52,7 @@ class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnony
   public render(){
     const {children, invert} = this.props;
     const {loading, isAnonymous} = this.state;
-
+    
     if(typeof children === "function"){
       return children({isAnonymous, loading});
     }else{

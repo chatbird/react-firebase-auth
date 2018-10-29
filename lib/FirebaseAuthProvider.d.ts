@@ -49,7 +49,7 @@ export declare type ProviderType = {
 declare class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, FirebaseAuthProviderState> {
     constructor(props: FirebaseAuthProviderProps);
     state: FirebaseAuthProviderState;
-    signInWithLinkedIn: () => void;
+    signInWithLinkedIn: (ref?: string) => void;
     providers: ProviderType[];
     componentDidMount(): Promise<void>;
     getPendingCredential: () => Promise<any>;

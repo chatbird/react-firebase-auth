@@ -33,7 +33,8 @@ export type FirebaseAuthProviderProps = {
 export type FirebaseAuthProviderState = {
   existingProviders: string[],
   existingEmail: string,
-  pendingCredential: any
+  pendingCredential: any,
+  loggedIn: boolean
 }
   
 export type ExistingAccountError = {
@@ -43,11 +44,13 @@ export type ExistingAccountError = {
 
 export interface IFirebaseContext {
   auth: firebase.auth.Auth,
-  getFirebaseToken: () => Promise<string>,
+  getFirebaseToken: (forceRefresh?: boolean) => Promise<string>,
   getCurrentUser: () => Promise<firebase.User>,
   hasExistingProviders: boolean,
   providers: ProviderType[],
-  handleExistingAccountError: (error: ExistingAccountError) => Promise<any>
+  handleExistingAccountError: (error: ExistingAccountError) => Promise<any>,
+  pendingCredential: any,
+  loggedIn: boolean
 }
   
 const signInWithRedirect = (providerId: ProviderIdType) => {
@@ -62,8 +65,8 @@ const signInWithPopup = (providerId: ProviderIdType) => {
   
 export type ProviderType = {
   id: ProviderIdType,
-  signInWithRedirect: () => any,
-  signInWithPopup: () => any
+  signInWithRedirect?: () => any,
+  signInWithPopup?: () => any
 }
   
 class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, FirebaseAuthProviderState> {
@@ -77,7 +80,8 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   state : FirebaseAuthProviderState = {
     existingProviders: null,
     pendingCredential: null,
-    existingEmail: null
+    existingEmail: null,
+    loggedIn: false
   };
 
   signInWithLinkedIn = () => {
@@ -87,11 +91,12 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
   };
 
   providers : ProviderType[] = [
-    {id: "facebook.com", signInWithRedirect: signInWithRedirect("facebook.com"), signInWithPopup: signInWithPopup("facebook.com")},
-    {id: "twitter.com", signInWithRedirect: signInWithRedirect("twitter.com"), signInWithPopup: signInWithPopup("twitter.com")},
+    // {id: "facebook.com", signInWithRedirect: signInWithRedirect("facebook.com"), signInWithPopup: signInWithPopup("facebook.com")},
+    // {id: "twitter.com", signInWithRedirect: signInWithRedirect("twitter.com"), signInWithPopup: signInWithPopup("twitter.com")},
     // {id: "github.com", signInWithRedirect: signInWithRedirect("github.com"), signInWithPopup: signInWithPopup("github.com")},
     {id: "google.com", signInWithRedirect: signInWithRedirect("google.com"), signInWithPopup: signInWithPopup("google.com")},
-    {id: "linkedin.com", signInWithRedirect: this.signInWithLinkedIn, signInWithPopup: this.signInWithLinkedIn}
+    {id: "linkedin.com", signInWithRedirect: this.signInWithLinkedIn, signInWithPopup: this.signInWithLinkedIn},
+    {id: "password"}
   ];
 
   async componentDidMount(){
@@ -168,7 +173,8 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
 
   login = async (idToken : string) => {
     const {onLogin} = this.props;
-    return await onLogin(idToken);
+    await onLogin(idToken);
+    this.setState({loggedIn: true});
   }
 
   getCurrentUser = () : Promise<firebase.User> => {
@@ -178,7 +184,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
       }
 
       firebase.auth().onAuthStateChanged(async user => {
-        const finalUser = await this.onAuthStateChanged(user)
+        const finalUser = await this.onAuthStateChanged(user, false)
         resolve(finalUser);
       }, reject);
     });
@@ -194,10 +200,12 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     await post(this.props.linkedInLinkPath, {pendingCredential, idToken});
   }
 
-  onAuthStateChanged = async (user) => {
+  onAuthStateChanged = async (user, login = true) => {
     if(user){
-      const firebaseToken = await user.getIdToken();
-      await this.login(firebaseToken);
+      const firebaseToken = await user.getIdToken(login);
+      if(login){
+        await this.login(firebaseToken);
+      }
       return user;
     }else if(this.props.allowAnonymousSignup){
       const userCredential : firebase.auth.UserCredential  = await firebase.auth().signInAnonymously();
@@ -212,23 +220,21 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     return firebase.auth().onAuthStateChanged(this.onAuthStateChanged);
   };
 
-  private getFirebaseToken = async () : Promise<string> => {
-    return await this.getToken();
-  }
-
   render() {
     const {children} = this.props;
-    let {existingProviders} = this.state;
+    let {existingProviders, pendingCredential, loggedIn} = this.state;
     const filteredProviders = existingProviders ? this.providers.filter(({id} : ProviderType) => existingProviders.includes(id)) : this.providers;
     const hasExistingProviders = existingProviders && filteredProviders && filteredProviders.length > 0;
 
     const value : IFirebaseContext = {
       auth: firebase.auth(),
-      getFirebaseToken: this.getFirebaseToken,
+      getFirebaseToken: this.getToken,
       getCurrentUser: this.getCurrentUser,
       handleExistingAccountError: this.handleExistingAccountError,
       providers: filteredProviders,
-      hasExistingProviders
+      hasExistingProviders,
+      pendingCredential,
+      loggedIn
     }
     
     return (

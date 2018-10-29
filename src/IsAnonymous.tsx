@@ -14,7 +14,8 @@ interface IIsAnonymousProps{
 }
 
 interface IInnerIsAnonymousProps{
-  getCurrentUser: () => Promise<firebase.User>
+  getCurrentUser: () => Promise<firebase.User>,
+  loggedIn: boolean
 }
 
 interface IIsAnonymousState{
@@ -24,12 +25,7 @@ interface IIsAnonymousState{
 
 class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnonymousProps, IIsAnonymousState>{
 
-  public cancelGetCurrentUser = () => {return};
-
-  public getCurrentUser = () => new Promise<firebase.User>((resolve, reject) => {
-    this.cancelGetCurrentUser = reject;
-    this.props.getCurrentUser().then(resolve);
-  });
+  public mounted = false; 
 
   public state = {
     loading: true,
@@ -37,16 +33,12 @@ class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnony
   }
 
   public componentDidMount(){
-    this.getCurrentUser().then((user) => {
-      //console.log(user.providerId);
-
-      const isAnonymous = !user || user.isAnonymous; //|| user.providerData.length === 0;
-      this.setState({isAnonymous, loading: false});
-    });
+    this.mounted = true;
+    this.checkState()
   }
 
   public componentWillUnmount(){
-    this.cancelGetCurrentUser();
+    this.mounted = false;
   }
 
   public render(){
@@ -63,14 +55,22 @@ class InnerIsAnonymous extends React.Component<IIsAnonymousProps & IInnerIsAnony
       return null;
     }
   }
+
+  private checkState = async () => {
+    const user = await this.props.getCurrentUser();
+    const isAnonymous = !user || user.isAnonymous;
+    if(this.mounted){
+      this.setState({isAnonymous, loading: false});
+    }
+  }
 }
 
 const IsAnonymous = (props : IIsAnonymousProps) => {
   return (
     <FirebaseAuthConsumer>
       {
-        ({getCurrentUser}) => {
-          return <InnerIsAnonymous getCurrentUser={getCurrentUser} {...props}/>
+        ({getCurrentUser, loggedIn}) => {
+          return <InnerIsAnonymous getCurrentUser={getCurrentUser} loggedIn={loggedIn} {...props}/>
         }
       }
     </FirebaseAuthConsumer>

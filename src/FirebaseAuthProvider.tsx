@@ -84,7 +84,7 @@ class FirebaseAuthProvider extends React.Component<FirebaseAuthProviderProps, Fi
     loggedIn: false
   };
 
-  signInWithLinkedIn = (ref = window.location.href) => {
+  signInWithLinkedIn = (ref = window.location.pathname) => {
     const url = appendQuery(this.props.linkedInLoginPath, {ref});
     window.location.replace(url);
   };
